@@ -1,0 +1,244 @@
+<div class="registration-container">
+  <div class="registration-card">
+    <div class="card-header">
+      <h1 class="registration-title">Member Registration</h1>
+      <p class="registration-subtitle">Create your library account to get started</p>
+    </div>
+
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
+      
+      <!-- Member Name -->
+      <div class="form-group">
+        <label for="memberName" class="form-label">
+          Member Name <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="memberName" 
+          formControlName="memberName"
+          class="form-control"
+          [class.error]="getFieldError('memberName')"
+          placeholder="Enter your full name"
+          maxlength="50"
+        />
+        <div class="error-message" *ngIf="getFieldError('memberName')">
+          {{ getFieldError('memberName') }}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          Email Address <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          class="form-control"
+          [class.error]="getFieldError('email')"
+          placeholder="Enter your email address"
+        />
+        <div class="error-message" *ngIf="getFieldError('email')">
+          {{ getFieldError('email') }}
+        </div>
+      </div>
+
+      <!-- Mobile Number -->
+      <div class="form-group">
+        <label class="form-label">
+          Mobile Number <span class="required">*</span>
+        </label>
+        <div class="mobile-input-group">
+          <select 
+            formControlName="countryCode" 
+            class="country-select"
+            [class.error]="getFieldError('countryCode')"
+          >
+            <option *ngFor="let country of countryCodes" [value]="country.dialCode">
+              {{ country.dialCode }} ({{ country.code }})
+            </option>
+          </select>
+          <input 
+            type="tel" 
+            formControlName="mobileNumber"
+            class="form-control mobile-input"
+            [class.error]="getFieldError('mobileNumber')"
+            placeholder="Enter mobile number"
+            maxlength="10"
+          />
+        </div>
+        <div class="error-message" *ngIf="getFieldError('mobileNumber')">
+          {{ getFieldError('mobileNumber') }}
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label for="address" class="form-label">
+          Address <span class="required">*</span>
+        </label>
+        <textarea 
+          id="address" 
+          formControlName="address"
+          class="form-control textarea"
+          [class.error]="getFieldError('address')"
+          placeholder="Enter your complete address"
+          rows="3"
+          maxlength="200"
+        ></textarea>
+        <div class="error-message" *ngIf="getFieldError('address')">
+          {{ getFieldError('address') }}
+        </div>
+      </div>
+
+      <!-- Date of Birth -->
+      <div class="form-group">
+        <label for="dateOfBirth" class="form-label">
+          Date of Birth <span class="required">*</span>
+        </label>
+        <input 
+          type="date" 
+          id="dateOfBirth" 
+          formControlName="dateOfBirth"
+          class="form-control"
+          [class.error]="getFieldError('dateOfBirth')"
+          [max]="maxDate"
+        />
+        <div class="error-message" *ngIf="getFieldError('dateOfBirth')">
+          {{ getFieldError('dateOfBirth') }}
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password" class="form-label">
+          Password <span class="required">*</span>
+        </label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password"
+          class="form-control"
+          [class.error]="getFieldError('password')"
+          placeholder="Create a strong password"
+        />
+        <div class="password-requirements">
+          <small>Must contain at least 8 characters with uppercase, lowercase, number, and special character</small>
+        </div>
+        <div class="error-message" *ngIf="getFieldError('password')">
+          {{ getFieldError('password') }}
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">
+          Confirm Password <span class="required">*</span>
+        </label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          formControlName="confirmPassword"
+          class="form-control"
+          [class.error]="getFieldError('confirmPassword')"
+          placeholder="Confirm your password"
+        />
+        <div class="error-message" *ngIf="getFieldError('confirmPassword')">
+          {{ getFieldError('confirmPassword') }}
+        </div>
+      </div>
+
+      <!-- Secret Question -->
+      <div class="form-group">
+        <label for="secretQuestion" class="form-label">
+          Security Question <span class="required">*</span>
+        </label>
+        <select 
+          id="secretQuestion" 
+          formControlName="secretQuestion"
+          class="form-control"
+          [class.error]="getFieldError('secretQuestion')"
+        >
+          <option value="">Select a security question</option>
+          <option *ngFor="let question of secretQuestions" [value]="question">
+            {{ question }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="getFieldError('secretQuestion')">
+          {{ getFieldError('secretQuestion') }}
+        </div>
+      </div>
+
+      <!-- Secret Answer -->
+      <div class="form-group">
+        <label for="secretAnswer" class="form-label">
+          Security Answer <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="secretAnswer" 
+          formControlName="secretAnswer"
+          class="form-control"
+          [class.error]="getFieldError('secretAnswer')"
+          placeholder="Enter your answer"
+          maxlength="100"
+        />
+        <div class="error-message" *ngIf="getFieldError('secretAnswer')">
+          {{ getFieldError('secretAnswer') }}
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="onReset()"
+          [disabled]="isLoading"
+        >
+          Reset
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="!isFormValid || isLoading"
+        >
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          {{ isLoading ? 'Registering...' : 'Register' }}
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <div class="login-link">
+        <p>Already have an account? <a routerLink="/login" class="link">Login here</a></p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="success-icon">✓</div>
+        <h2>Registration Successful!</h2>
+      </div>
+      
+      <div class="modal-body">
+        <div class="success-details" *ngIf="registrationResponse">
+          <p><strong>Member ID:</strong> {{ registrationResponse.memberId }}</p>
+          <p><strong>Name:</strong> {{ registrationResponse.memberName }}</p>
+          <p><strong>Email:</strong> {{ registrationResponse.email }}</p>
+        </div>
+        <p class="success-message">Your account has been created successfully. You can now login to access the library services.</p>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="navigateToLogin()">
+          Login Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

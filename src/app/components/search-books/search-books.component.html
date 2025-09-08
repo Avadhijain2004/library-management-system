@@ -1,0 +1,309 @@
+<app-navbar></app-navbar>
+<div class="search-books-container">
+  <!-- Header Section -->
+  <div class="search-header">
+    <h1 class="page-title">📚 Search Books</h1>
+    <p class="page-subtitle">
+      Find your next favorite book by author, title, category, or book ID
+    </p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="search-section">
+    <div class="search-form-section">
+      <form
+        [formGroup]="searchForm"
+        (ngSubmit)="onSearch()"
+        class="search-form"
+      >
+        <!-- Search Fields Grid -->
+        <div class="search-fields">
+          <!-- Author Search -->
+          <div class="form-group">
+            <label for="author" class="form-label">📝 Author</label>
+            <input
+              type="text"
+              id="author"
+              formControlName="author"
+              class="form-control"
+              placeholder="e.g., George Orwell, Harper Lee"
+            />
+          </div>
+
+          <!-- Title Search -->
+          <div class="form-group">
+            <label for="title" class="form-label">📖 Title</label>
+            <input
+              type="text"
+              id="title"
+              formControlName="title"
+              class="form-control"
+              placeholder="e.g., 1984, The Great Gatsby"
+            />
+          </div>
+
+          <!-- Category Search -->
+          <div class="form-group">
+            <label for="category" class="form-label">🏷️ Category</label>
+            <input
+              type="text"
+              id="category"
+              formControlName="category"
+              class="form-control"
+              placeholder="e.g., Fiction, Programming, Classic"
+              list="categories"
+            />
+            <datalist id="categories">
+              <option
+                *ngFor="let category of categories"
+                [value]="category.name"
+              >
+                {{ category.name }} ({{ category.count }} books)
+              </option>
+            </datalist>
+          </div>
+
+          <!-- Book ID Search -->
+          <div class="form-group">
+            <label for="bookId" class="form-label">🆔 Book ID</label>
+            <input
+              type="text"
+              id="bookId"
+              formControlName="bookId"
+              class="form-control"
+              placeholder="e.g., BK001, BK002"
+            />
+          </div>
+        </div>
+
+        <!-- Search Actions -->
+        <div class="search-actions">
+          <button
+            type="submit"
+            class="btn btn-primary search-btn"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="isLoading" class="loading-spinner"></span>
+            <span *ngIf="!isLoading">🔍 Search Books</span>
+            <span *ngIf="isLoading">Searching...</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="onClearSearch()"
+          >
+            🗑️ Clear
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Search Categories -->
+      <div class="quick-search-section" *ngIf="categories.length > 0">
+        <h3>🚀 Quick Search by Category:</h3>
+        <div class="category-chips">
+          <button
+            *ngFor="let category of categories"
+            class="category-chip"
+            (click)="onQuickSearch('category', category.name)"
+          >
+            {{ category.name }}
+            <span class="category-count">({{ category.count }})</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-section" *ngIf="errorMessage">
+    <div class="alert alert-error">
+      <strong>❌ Error:</strong> {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-section" *ngIf="isLoading">
+    <div class="loading-container">
+      <div class="loading-spinner large"></div>
+      <p>Searching for books...</p>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="results-section" *ngIf="!isLoading && searchResults.length > 0">
+    <!-- Results Header -->
+    <div class="results-header">
+      <h2>📋 Search Results</h2>
+      <p class="results-info">
+        Found <strong>{{ searchResults.length }}</strong> books
+        <span *ngIf="searchTerm">for "{{ searchTerm }}"</span>
+      </p>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="books-grid">
+      <div
+        class="book-card"
+        *ngFor="let book of searchResults; trackBy: trackById"
+      >
+        <!-- Book Image -->
+        <div class="book-image-container">
+          <img
+            [src]="book.imageUrl"
+            [alt]="book.title"
+            class="book-image"
+            (error)="onImageError($event)"
+          />
+
+          <!-- Availability Badge -->
+          <div class="availability-badge" [class]="getAvailabilityClass(book)">
+            {{ getAvailabilityStatus(book) }}
+          </div>
+        </div>
+
+        <!-- Book Info -->
+        <div class="book-info">
+          <h3 class="book-title">{{ book.title }}</h3>
+          <p class="book-author">by {{ book.author }}</p>
+          <p class="book-category">📚 {{ book.category }}</p>
+          <p class="book-id">🆔 {{ book.id }}</p>
+
+          <!-- Rating -->
+          <div class="book-rating" *ngIf="book.rating">
+            <div class="stars">
+              <span
+                class="star filled"
+                *ngFor="let star of getStarArray(book.rating || 0)"
+                >★</span
+              >
+              <span
+                class="star empty"
+                *ngFor="let star of getEmptyStarArray(book.rating || 0)"
+                >☆</span
+              >
+            </div>
+            <span class="rating-text">({{ book.rating }}/5)</span>
+          </div>
+
+          <!-- Availability Details -->
+          <div class="availability-info">
+            <p class="copies-info">
+              <strong>Available:</strong> {{ book.availableCopies }} of
+              {{ book.totalCopies }}
+            </p>
+            <p
+              class="due-date"
+              *ngIf="book.availableCopies === 0 && book.dueDate"
+            >
+              <strong>Next Return:</strong> {{ book.dueDate }}
+            </p>
+          </div>
+
+          <!-- Book Actions -->
+          <div class="book-actions">
+            <button
+              class="btn btn-outline btn-sm"
+              (click)="viewBookDetails(book)"
+            >
+              👁️ View Details
+            </button>
+
+            <button
+              class="btn btn-primary btn-sm"
+              (click)="checkAvailability(book)"
+              [disabled]="!book.isAvailable && book.availableCopies === 0"
+            >
+              <span *ngIf="book.availableCopies > 0">📖 Borrow</span>
+              <span *ngIf="book.availableCopies === 0 && book.isAvailable"
+                >📅 Check Status</span
+              >
+              <span *ngIf="!book.isAvailable">❌ Unavailable</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div
+    class="no-results-section"
+    *ngIf="!isLoading && searchResults.length === 0 && searchTerm"
+  >
+    <div class="no-results-container">
+      <div class="no-results-icon">📭</div>
+      <h3>No Books Found</h3>
+      <p>We couldn't find any books matching your search criteria.</p>
+      <div class="suggestions">
+        <h4>Try:</h4>
+        <ul>
+          <li>Checking your spelling</li>
+          <li>Using different keywords</li>
+          <li>Searching by author or category</li>
+          <li>Using our quick category search above</li>
+        </ul>
+      </div>
+      <button class="btn btn-primary" (click)="onClearSearch()">
+        🔄 Start New Search
+      </button>
+    </div>
+  </div>
+
+  <!-- Availability Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showAvailabilityModal"
+    (click)="closeModal()"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📋 Book Availability</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="book-info-modal" *ngIf="selectedBook">
+          <img
+            [src]="selectedBook.imageUrl"
+            [alt]="selectedBook.title"
+            class="modal-book-image"
+          />
+          <div class="modal-book-details">
+            <h4>{{ selectedBook.title }}</h4>
+            <p>by {{ selectedBook.author }}</p>
+          </div>
+        </div>
+
+        <div class="availability-message">
+          <p>{{ modalMessage }}</p>
+        </div>
+
+        <div
+          class="modal-suggestions"
+          *ngIf="selectedBook?.availableCopies === 0"
+        >
+          <h4>💡 Suggestions:</h4>
+          <ul>
+            <li>Check back after {{ selectedBook?.dueDate || "7" }} days</li>
+            <li>Search for similar books in the same category</li>
+            <li>Browse our popular books section</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+        <button
+          class="btn btn-primary"
+          *ngIf="selectedBook"
+          (click)="
+            onQuickSearch('category', selectedBook.category); closeModal()
+          "
+        >
+          Browse {{ selectedBook.category }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

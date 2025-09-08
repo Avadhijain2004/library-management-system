@@ -1,0 +1,178 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="card-header">
+      <h1 class="login-title">Member Login</h1>
+      <p class="login-subtitle">Access your library account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          Email Address <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.error]="getFieldError('email')"
+          placeholder="Enter your email address"
+          autocomplete="email"
+        />
+        <div class="error-message" *ngIf="getFieldError('email')">
+          {{ getFieldError("email") }}
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password" class="form-label">
+          Password <span class="required">*</span>
+        </label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [class.error]="getFieldError('password')"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+        />
+        <div class="error-message" *ngIf="getFieldError('password')">
+          {{ getFieldError("password") }}
+        </div>
+      </div>
+
+      
+
+      
+
+      
+
+      
+
+      <!-- Login Button -->
+      <button
+        type="submit"
+        class="btn btn-primary login-btn"
+        [disabled]="!isFormValid || isLoading"
+      >
+        <span *ngIf="isLoading" class="loading-spinner"></span>
+        {{ isLoading ? "Signing In..." : "Login" }}
+      </button>
+
+      <!-- Action Links -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="link-button"
+          (click)="onForgotPassword()"
+          [disabled]="isLoading"
+        >
+          Forgot Password?
+        </button>
+
+        <span class="separator">|</span>
+
+        <button
+          type="button"
+          class="link-button"
+          (click)="navigateToRegister()"
+          [disabled]="isLoading"
+        >
+          Register Now
+        </button>
+      </div>
+    </form>
+
+    <!-- Demo Credentials -->
+    <div class="demo-credentials">
+      <h4>Demo Credentials:</h4>
+      <p><strong>Email:</strong> john&#64;example.com</p>
+      <p><strong>Password:</strong> Password</p>
+    </div>
+  </div>
+
+  <!-- Add this section after the demo credentials -->
+<!-- <div class="debug-section" style="background: #f0f0f0; padding: 20px; margin-top: 20px; border-radius: 8px;">
+  <h4 style="margin-bottom: 15px; color: #333;">Debug Tools:</h4>
+  
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <button class="btn btn-outline" (click)="showAllUsers()">
+      👥 Show All Registered Users
+    </button>
+    
+    <button class="btn btn-outline" (click)="testLogin()" [disabled]="!isFormValid">
+      🔍 Test Login Credentials
+    </button>
+    
+    <button class="btn btn-outline" (click)="clearAllData()" 
+            style="background: #ff6b6b; color: white;">
+      🗑️ Clear All Data
+    </button>
+  </div>
+  
+  <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+    <strong>Instructions:</strong>
+    <ol style="margin: 5px 0; padding-left: 20px;">
+      <li>First, register a new account</li>
+      <li>Come back to login page</li>
+      <li>Enter your exact email and password</li>
+      <li>Click "Test Login Credentials" to debug</li>
+      <li>Then click "Login" if test passes</li>
+    </ol>
+  </div>
+</div> -->
+
+
+  <!-- Forgot Password Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showForgotPassword"
+    (click)="closeForgotPassword()"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button class="close-btn" (click)="closeForgotPassword()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Enter your email address and we'll send you a link to reset your
+          password.
+        </p>
+
+        <div class="form-group">
+          <label for="forgotEmail" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="forgotEmail"
+            [(ngModel)]="forgotPasswordEmail"
+            class="form-control"
+            placeholder="Enter your email address"
+          />
+        </div>
+
+        <div
+          class="message"
+          *ngIf="forgotPasswordMessage"
+          [class.success]="forgotPasswordMessage.includes('sent')"
+          [class.error]="!forgotPasswordMessage.includes('sent')"
+        >
+          {{ forgotPasswordMessage }}
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeForgotPassword()">
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submitForgotPassword()">
+          Send Reset Link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
