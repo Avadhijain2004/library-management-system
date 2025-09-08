@@ -3,6 +3,7 @@ import { MemberRegistrationComponent } from './components/member-registration/me
 import { LoginComponent } from './components/login/login.component';
 import { HomepageComponent } from './components/homepage/homepage.component';
 import { SearchBooksComponent } from './components/search-books/search-books.component';
+import { BorrowBooksComponent } from './components/borrow-books/borrow-books.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -10,6 +11,5 @@ export const routes: Routes = [
   { path: 'register', component: MemberRegistrationComponent },
   { path: 'homepage', component: HomepageComponent },
   { path: 'search', component: SearchBooksComponent },
-  { path: 'books', component: SearchBooksComponent },
-  // Add more routes here as you create more components
+  { path: 'borrow', component: BorrowBooksComponent }, // ✅ Add this route
 ];

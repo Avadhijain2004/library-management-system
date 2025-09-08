@@ -40,3 +40,24 @@ export interface BookCategory {
   name: string;
   count: number;
 }
+
+export interface BorrowItem {
+  bookId: string;
+  quantity: number;
+  book?: Book;
+}
+
+export interface BorrowRequest {
+  libraryId: string;
+  borrowItems: BorrowItem[];
+  borrowDate: Date;
+  dueDate: Date;
+}
+
+export interface BorrowResponse {
+  success: boolean;
+  message: string;
+  borrowId?: string;
+  dueDate?: string;
+  borrowedBooks?: BorrowItem[];
+}

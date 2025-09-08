@@ -1,0 +1,362 @@
+<app-navbar></app-navbar>
+<div class="borrow-books-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">📖 Borrow Books</h1>
+    <p class="page-subtitle">
+      Search and borrow books from our digital library
+    </p>
+  </div>
+
+  <!-- User Information Section -->
+<div style="display: flex; justify-content: space-around;">
+      <section class="user-section">
+    <div class="users-card">
+      <h2 class="section-title">👤 User Information</h2>
+        <br><br>
+      <form [formGroup]="userForm" class="user-form">
+        <div class="form-group">
+          <label for="libraryId" class="form-label">Library ID *</label>
+          <div class="input-group">
+            <input
+              type="text"
+              id="libraryId"
+              formControlName="libraryId"
+              class="form-control"
+              placeholder="Enter Library ID (e.g., LIB001)"
+              [class.error]="
+                userForm.get('libraryId')?.invalid &&
+                userForm.get('libraryId')?.touched
+              "
+            />
+            
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="fetchUserInfo()"
+              [disabled]="userForm.invalid || isLoadingUser"
+            >
+              <span *ngIf="isLoadingUser" class="loading-spinner"></span>
+              {{ isLoadingUser ? "Fetching..." : "Fetch Info" }}
+            </button>
+          </div>
+          <div class="field-hint">Format: LIB001, LIB002, LIB003</div>
+        </div>
+      </form>
+
+      <!-- User Info Display -->
+      <div class="user-info-display" *ngIf="userBorrowInfo">
+        <div class="user-card">
+          <div class="user-details">
+            <h3>{{ userBorrowInfo.name }}</h3>
+            <p>{{ userBorrowInfo.email }}</p>
+            <p><strong>Library ID:</strong> {{ userBorrowInfo.libraryId }}</p>
+          </div>
+
+          <div class="borrow-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{
+                userBorrowInfo.currentBorrowedCount
+              }}</span>
+              <span class="stat-label">Current Books</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{
+                MAX_BOOKS_PER_USER - userBorrowInfo.currentBorrowedCount
+              }}</span>
+              <span class="stat-label">Available Slots</span>
+            </div>
+            <div class="stat-item" [class.warning]="userBorrowInfo.fines > 0">
+              <span class="stat-value">₹{{ userBorrowInfo.fines }}</span>
+              <span class="stat-label">Pending Fines</span>
+            </div>
+            <div
+              class="stat-item"
+              [class.warning]="userBorrowInfo.overdueBooks > 0"
+            >
+              <span class="stat-value">{{ userBorrowInfo.overdueBooks }}</span>
+              <span class="stat-label">Overdue Books</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Book Search Section -->
+  <section class="search-section">
+    <div class="users-card">
+      <h2 class="section-title">🔍 Search Books</h2>
+
+      <form
+        [formGroup]="searchForm"
+        (ngSubmit)="onSearch()"
+        class="search-form"
+      >
+        <div class="search-fields">
+          <div class="form-group">
+            <label for="title" class="form-label">Title</label>
+            <input
+              type="text"
+              id="title"
+              formControlName="title"
+              class="form-control"
+              placeholder="Search by book title..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="author" class="form-label">Author</label>
+            <input
+              type="text"
+              id="author"
+              formControlName="author"
+              class="form-control"
+              placeholder="Search by author name..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="form-label">Category</label>
+            <input
+              type="text"
+              id="category"
+              formControlName="category"
+              class="form-control"
+              placeholder="Search by category..."
+            />
+          </div>
+        </div>
+
+        <div class="search-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isSearching"
+          >
+            <span *ngIf="isSearching" class="loading-spinner"></span>
+            {{ isSearching ? "Searching..." : "🔍 Search" }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="onClearSearch()"
+          >
+            🗑️ Clear
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+  <!-- Messages -->
+  <div class="messages" *ngIf="errorMessage || successMessage">
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <strong>❌ Error:</strong> {{ errorMessage }}
+    </div>
+    <div class="alert alert-success" *ngIf="successMessage">
+      <strong>✅ Success:</strong> {{ successMessage }}
+    </div>
+  </div>
+
+  <!-- Book Selection Section -->
+  <div style="display: flex; justify-content: center;">
+    <section class="books-section">
+    <div class="card">
+      <div class="section-header">
+        <h2 class="section-title">📚 Available Books</h2>
+        <div class="selection-summary" *ngIf="selectedBooks.size > 0">
+          <span class="selected-count"
+            >{{ getTotalSelectedCopies() }} book(s) selected</span
+          >
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoadingBooks">
+        <div class="loading-spinner large"></div>
+        <p>Loading books...</p>
+      </div>
+
+      <!-- Books Grid -->
+      <div class="books-grid" *ngIf="!isLoadingBooks">
+        <div
+          class="book-card"
+          *ngFor="let book of filteredBooks; trackBy: trackByBookId"
+        >
+          <div class="book-image-container">
+            <img
+              [src]="book.imageUrl"
+              [alt]="book.title"
+              class="book-image"
+              (error)="onImageError($event)"
+            />
+            <div
+              class="availability-badge"
+              [class.available]="book.availableCopies > 0"
+              [class.unavailable]="book.availableCopies === 0"
+            >
+              {{ book.availableCopies }} Available
+            </div>
+          </div>
+
+          <div class="book-info">
+            <h3 class="book-title">{{ book.title }}</h3>
+            <p class="book-author">by {{ book.author }}</p>
+            <p class="book-category">📚 {{ book.category }}</p>
+            <p class="book-isbn">ISBN: {{ book.isbn }}</p>
+
+            <!-- Rating -->
+            <div class="book-rating" *ngIf="book.rating">
+              <div class="stars">
+                <span
+                  class="star"
+                  *ngFor="let i of [1, 2, 3, 4, 5]"
+                  [class.filled]="i <= (book.rating || 0)"
+                  >★</span
+                >
+              </div>
+              <span class="rating-text">({{ book.rating }}/5)</span>
+            </div>
+
+            <!-- Quantity Selection -->
+            <div class="quantity-section">
+              <label [for]="'qty-' + book.id" class="quantity-label"
+                >Quantity to Borrow:</label
+              >
+              <div class="quantity-input-group">
+                <input
+                  type="number"
+                  [id]="'qty-' + book.id"
+                  min="0"
+                  [max]="book.availableCopies"
+                  class="quantity-input"
+                  (change)="onQuantityChange(book.id, $event)"
+                  [disabled]="book.availableCopies === 0 || !userBorrowInfo"
+                  placeholder="0"
+                />
+                <span class="max-copies">Max: {{ book.availableCopies }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Books Message -->
+        <div
+          class="no-books"
+          *ngIf="filteredBooks.length === 0 && !isSearching"
+        >
+          <div class="no-books-icon">📭</div>
+          <h3>No books found</h3>
+          <p>
+            Try adjusting your search criteria or browse all available books.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <!-- Borrow Summary & Confirmation -->
+  <section
+    class="confirmation-section"
+    *ngIf="selectedBooks.size > 0 && userBorrowInfo"
+  >
+    <div class="card">
+      <h2 class="section-title">📋 Borrow Summary</h2>
+
+      <div class="summary-content">
+        <div class="selected-books-list">
+          <h3>Selected Books:</h3>
+          <div
+            class="selected-book-item"
+            *ngFor="let item of getSelectedBookDetails()"
+          >
+            <span class="book-info"
+              >{{ item.quantity }}x {{ item.book.title }}</span
+            >
+            <span class="book-author">by {{ item.book.author }}</span>
+          </div>
+        </div>
+
+        <div class="borrow-details">
+          <div class="detail-row">
+            <span class="detail-label">Total Books:</span>
+            <span class="detail-value">{{ getTotalSelectedCopies() }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Borrow Period:</span>
+            <span class="detail-value">{{ BORROW_PERIOD_DAYS }} days</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Due Date:</span>
+            <span class="detail-value">{{ calculatedDueDate }}</span>
+
+          </div>
+          <div class="detail-row warning">
+            <span class="detail-label">Late Return Fine:</span>
+            <span class="detail-value"
+              >₹{{ FINE_PER_DAY }} per day per book</span
+            >
+          </div>
+        </div>
+
+        <div class="confirmation-actions">
+          <button class="btn btn-primary btn-large" (click)="confirmBorrow()">
+            📖 Confirm Borrow
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showConfirmation" (click)="cancelBorrow()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📋 Confirm Borrow</h3>
+        <button class="close-btn" (click)="cancelBorrow()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          <strong>Borrower:</strong> {{ userBorrowInfo?.name }} ({{
+            userBorrowInfo?.libraryId
+          }})
+        </p>
+        <p><strong>Total Books:</strong> {{ getTotalSelectedCopies() }}</p>
+        <p>
+          <strong>Due Date:</strong>
+          {{ calculatedDueDate }}
+        </p>
+
+        <div class="books-list">
+          <h4>Books to Borrow:</h4>
+          <ul>
+            <li *ngFor="let item of getSelectedBookDetails()">
+              {{ item.quantity }}x {{ item.book.title }} by
+              {{ item.book.author }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="important-note">
+          <p>
+            <strong>⚠️ Important:</strong> Please return books on time. A fine
+            of ₹{{ FINE_PER_DAY }} per day will be charged for late returns.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="cancelBorrow()">
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="processBorrow()">
+          Confirm Borrow
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

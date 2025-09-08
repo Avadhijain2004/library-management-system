@@ -1,13 +1,14 @@
 /* Container Styles */
 .search-books-container {
   min-height: 100vh;
-  background: linear-gradient(#000000 100%),
+  /* background: linear-gradient(#000000 100%),
               url('https://images.pexels.com/photos/256455/pexels-photo-256455.jpeg');
   background-blend-mode:overlay;            
   background-position:top;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-size: cover;
+  background-size: cover; */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin-top: 60px;

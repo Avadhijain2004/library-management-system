@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { Book, SearchCriteria, SearchResult, BookCategory } from '../models/book.model';
+import {
+  Book,
+  SearchCriteria,
+  SearchResult,
+  BookCategory,
+} from '../models/book.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookService {
   private apiUrl = 'http://localhost:8080/api/books';
-  
+
   // Mock comprehensive book database
   private mockBooks: Book[] = [
     {
@@ -18,7 +23,8 @@ export class BookService {
       category: 'Classic Literature',
       isbn: '978-0-7432-7356-5',
       description: 'A classic American novel set in the Jazz Age',
-      imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop',
+      imageUrl:
+        'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop',
       availableCopies: 3,
       totalCopies: 10,
       rating: 4.5,
@@ -26,7 +32,6 @@ export class BookService {
       isAvailable: true,
       borrowedBy: ['user1', 'user2'],
       returnDate: '2025-09-20',
-      
     },
     {
       id: 'BK002',
@@ -34,15 +39,17 @@ export class BookService {
       author: 'Harper Lee',
       category: 'Classic Literature',
       isbn: '978-0-06-112008-4',
-      description: 'A gripping tale of racial injustice and childhood innocence',
-      imageUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop',
+      description:
+        'A gripping tale of racial injustice and childhood innocence',
+      imageUrl:
+        'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop',
       availableCopies: 0,
       totalCopies: 8,
       rating: 4.8,
       publishYear: 1960,
       isAvailable: true,
       borrowedBy: ['user3', 'user4', 'user5'],
-      dueDate: '2025-09-13'
+      dueDate: '2025-09-13',
     },
     {
       id: 'BK003',
@@ -51,12 +58,13 @@ export class BookService {
       category: 'Dystopian Fiction',
       isbn: '978-0-452-28423-4',
       description: 'A dystopian social science fiction novel',
-      imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&h=400&fit=crop',
+      imageUrl:
+        'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&h=400&fit=crop',
       availableCopies: 5,
       totalCopies: 12,
       rating: 4.6,
       publishYear: 1949,
-      isAvailable: true
+      isAvailable: true,
     },
     {
       id: 'BK004',
@@ -65,12 +73,13 @@ export class BookService {
       category: 'Programming',
       isbn: '978-1-234-56789-0',
       description: 'Complete guide to Angular development',
-      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop',
+      imageUrl:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop',
       availableCopies: 8,
       totalCopies: 10,
       rating: 4.7,
       publishYear: 2023,
-      isAvailable: true
+      isAvailable: true,
     },
     {
       id: 'BK005',
@@ -79,12 +88,13 @@ export class BookService {
       category: 'Programming',
       isbn: '978-0-596-51774-8',
       description: 'Essential JavaScript programming concepts',
-      imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=300&h=400&fit=crop',
+      imageUrl:
+        'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=300&h=400&fit=crop',
       availableCopies: 2,
       totalCopies: 6,
       rating: 4.4,
       publishYear: 2008,
-      isAvailable: true
+      isAvailable: true,
     },
     {
       id: 'BK006',
@@ -93,26 +103,27 @@ export class BookService {
       category: 'Fiction',
       isbn: '978-0-000-00000-0',
       description: 'This book is currently unavailable',
-      imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop',
+      imageUrl:
+        'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop',
       availableCopies: 0,
       totalCopies: 5,
       rating: 3.8,
       publishYear: 2020,
-      isAvailable: false
-    }
+      isAvailable: false,
+    },
   ];
 
   constructor() {}
 
   searchBooks(criteria: SearchCriteria): Observable<SearchResult> {
     console.log('Searching books with criteria:', criteria);
-    
+
     let filteredBooks = this.mockBooks;
 
     // Filter by author
     if (criteria.author && criteria.author.trim()) {
       const authorQuery = criteria.author.toLowerCase().trim();
-      filteredBooks = filteredBooks.filter(book =>
+      filteredBooks = filteredBooks.filter((book) =>
         book.author.toLowerCase().includes(authorQuery)
       );
     }
@@ -120,7 +131,7 @@ export class BookService {
     // Filter by title
     if (criteria.title && criteria.title.trim()) {
       const titleQuery = criteria.title.toLowerCase().trim();
-      filteredBooks = filteredBooks.filter(book =>
+      filteredBooks = filteredBooks.filter((book) =>
         book.title.toLowerCase().includes(titleQuery)
       );
     }
@@ -128,7 +139,7 @@ export class BookService {
     // Filter by category
     if (criteria.category && criteria.category.trim()) {
       const categoryQuery = criteria.category.toLowerCase().trim();
-      filteredBooks = filteredBooks.filter(book =>
+      filteredBooks = filteredBooks.filter((book) =>
         book.category.toLowerCase().includes(categoryQuery)
       );
     }
@@ -136,7 +147,7 @@ export class BookService {
     // Filter by book ID
     if (criteria.bookId && criteria.bookId.trim()) {
       const idQuery = criteria.bookId.toUpperCase().trim();
-      filteredBooks = filteredBooks.filter(book =>
+      filteredBooks = filteredBooks.filter((book) =>
         book.id.toUpperCase().includes(idQuery)
       );
     }
@@ -144,7 +155,7 @@ export class BookService {
     const result: SearchResult = {
       books: filteredBooks,
       totalCount: filteredBooks.length,
-      searchTerm: this.generateSearchTerm(criteria)
+      searchTerm: this.generateSearchTerm(criteria),
     };
 
     console.log('Search results:', result);
@@ -153,14 +164,14 @@ export class BookService {
 
   getBookCategories(): Observable<BookCategory[]> {
     const categories = this.mockBooks.reduce((acc, book) => {
-      const existing = acc.find(cat => cat.name === book.category);
+      const existing = acc.find((cat) => cat.name === book.category);
       if (existing) {
         existing.count++;
       } else {
         acc.push({
           id: book.category.toLowerCase().replace(/\s+/g, '-'),
           name: book.category,
-          count: 1
+          count: 1,
         });
       }
       return acc;
@@ -170,7 +181,7 @@ export class BookService {
   }
 
   getBookById(id: string): Observable<Book | null> {
-    const book = this.mockBooks.find(b => b.id === id);
+    const book = this.mockBooks.find((b) => b.id === id);
     return of(book || null).pipe(delay(200));
   }
 
@@ -185,6 +196,105 @@ export class BookService {
 
   // Get popular books (from existing method)
   getPopularBooks(): Observable<Book[]> {
-    return of(this.mockBooks.filter(book => book.rating && book.rating > 4.0)).pipe(delay(500));
+    return of(
+      this.mockBooks.filter((book) => book.rating && book.rating > 4.0)
+    ).pipe(delay(500));
+  }
+
+  // Add these methods to your existing BookService
+
+  getAllBooks(): Observable<Book[]> {
+    // Extended mock data with more books
+    const allBooks: Book[] = [
+      {
+        id: 'BK001',
+        title: 'The Great Gatsby',
+        author: 'F. Scott Fitzgerald',
+        category: 'Classic Literature',
+        isbn: '978-0-7432-7356-5',
+        description: 'A classic American novel set in the Jazz Age',
+        imageUrl:
+          'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop',
+        availableCopies: 8,
+        totalCopies: 10,
+        rating: 4.5,
+        publishYear: 1925,
+        isAvailable: true,
+      },
+      {
+        id: 'BK002',
+        title: 'To Kill a Mockingbird',
+        author: 'Harper Lee',
+        category: 'Classic Literature',
+        isbn: '978-0-06-112008-4',
+        description:
+          'A gripping tale of racial injustice and childhood innocence',
+        imageUrl:
+          'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop',
+        availableCopies: 5,
+        totalCopies: 8,
+        rating: 4.8,
+        publishYear: 1960,
+        isAvailable: true,
+      },
+      {
+        id: 'BK003',
+        title: '1984',
+        author: 'George Orwell',
+        category: 'Dystopian Fiction',
+        isbn: '978-0-452-28423-4',
+        description: 'A dystopian social science fiction novel',
+        imageUrl:
+          'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=300&h=400&fit=crop',
+        availableCopies: 12,
+        totalCopies: 15,
+        rating: 4.6,
+        publishYear: 1949,
+        isAvailable: true,
+      },
+      {
+        id: 'BK004',
+        title: 'Angular Complete Guide',
+        author: 'John Smith',
+        category: 'Programming',
+        isbn: '978-1-234-56789-0',
+        description: 'Complete guide to Angular development',
+        imageUrl:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop',
+        availableCopies: 6,
+        totalCopies: 10,
+        rating: 4.7,
+        publishYear: 2023,
+        isAvailable: true,
+      },
+      {
+        id: 'BK005',
+        title: 'JavaScript: The Good Parts',
+        author: 'Douglas Crockford',
+        category: 'Programming',
+        isbn: '978-0-596-51774-8',
+        description: 'Essential JavaScript programming concepts',
+        imageUrl:
+          'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=300&h=400&fit=crop',
+        availableCopies: 3,
+        totalCopies: 6,
+        rating: 4.4,
+        publishYear: 2008,
+        isAvailable: true,
+      },
+    ];
+
+    return of(allBooks).pipe(delay(800));
+  }
+
+  updateBookInventory(
+    bookId: string,
+    quantityBorrowed: number
+  ): Observable<boolean> {
+    // In a real app, this would update the database
+    console.log(
+      `Updated inventory: Book ${bookId}, borrowed: ${quantityBorrowed}`
+    );
+    return of(true).pipe(delay(300));
   }
 }
