@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
     ).subscribe(user => {
       this.updateNavBarVisibility(this.router.url);
     });
+    
   }
 
   ngOnDestroy(): void {

@@ -78,6 +78,7 @@ export interface UserBorrowInfo {
   isEligible: boolean;
   memberSince?: string;
   lastBorrowDate?: string;
+  lastPaymentDate?: string;
 }
 
 /**

@@ -45,6 +45,18 @@
     </div>
   </section>
 
+  <section class="fines-section" *ngIf="totalFines >= 0">
+  <div class="card fine-warning-card">
+    <div class="section-header">
+      <h2 class="section-title">💳 Outstanding Fines</h2>
+      <button class="btn btn-primary" routerLink="/fines">
+        Pay ₹{{ totalFines }}
+      </button>
+    </div>
+    <p>You have {{ overdueBooks }} overdue book(s) with total fines of ₹{{ totalFines }}.</p>
+  </div>
+</section>
+
   <!-- Filters Section -->
   <section class="filters-section">
     <div class="card">

@@ -30,6 +30,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.currentUser = user;
       console.log('🔄 Navbar updated with new user data:', user?.memberName); // Debug log
     });
+
+    
+
   }
 
   ngOnDestroy(): void {
@@ -38,7 +41,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // Rest of your methods remain the same...
   onSearchClick(): void {
-    this.router.navigate(['/search']);
+    this.router.navigate(['/view']);
   }
 
   toggleProfileDropdown(): void {
