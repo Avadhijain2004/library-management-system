@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { StorageService } from './storage.service';
-import { MemberService } from './member.service';
-import { LoginRequest, LoginResponse, AuthUser } from '../models/auth.model';
+import { AuthUser } from '../models/auth.model';
+import { UserBorrowInfo } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,85 +12,110 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  // ✅ Add user borrow info state management
+  private userBorrowInfoSubject = new BehaviorSubject<UserBorrowInfo | null>(null);
+  public userBorrowInfo$ = this.userBorrowInfoSubject.asObservable();
+
   constructor(
     private router: Router,
-    private storageService: StorageService,
-    private memberService: MemberService
+    private storageService: StorageService
   ) {
-    // Check if user is already logged in
+    this.loadStoredUser();
+  }
+
+  private loadStoredUser(): void {
     const storedUser = this.storageService.getItem('currentUser');
     if (storedUser) {
       try {
-        this.currentUserSubject.next(JSON.parse(storedUser));
+        const user = JSON.parse(storedUser);
+        if (user.loginTime && typeof user.loginTime === 'string') {
+          user.loginTime = new Date(user.loginTime);
+        }
+        this.currentUserSubject.next(user);
+        console.log('✅ Loaded stored user:', user);
       } catch (error) {
+        console.error('Error loading stored user:', error);
         this.storageService.removeItem('currentUser');
       }
     }
   }
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
-    console.log('Login attempt with credentials:', credentials);
-    
-    const user = this.memberService.findUserByEmail(credentials.email);
-    const isValid = this.memberService.validateCredentials(credentials.email, credentials.password);
+  login(credentials: any): Observable<any> {
+    const registeredUsers = JSON.parse(this.storageService.getItem('registered_users') || '[]');
+    const user = registeredUsers.find((u: any) => 
+      u.email.toLowerCase() === credentials.email.toLowerCase() && 
+      u.password === credentials.password
+    );
 
-    if (isValid && user) {
-      const response: LoginResponse = {
-        success: true,
-        message: 'Login successful',
-        token: 'token-' + Date.now(),
+    if (user) {
+      const authUser: AuthUser = {
         memberId: user.id,
         memberName: user.memberName,
         email: user.email,
-        redirectUrl: '/homepage'
-      };
-
-      const authUser: AuthUser = {
-        memberId: response.memberId!,
-        memberName: response.memberName!,
-        email: response.email!,
-        token: response.token!,
+        token: 'mock-jwt-token-' + Date.now(),
         loginTime: new Date()
       };
-      
-      this.storageService.setItem('currentUser', JSON.stringify(authUser));
-      this.currentUserSubject.next(authUser);
 
-      console.log('Login successful, user stored:', authUser);
-      return of(response);
+      this.setCurrentUser(authUser);
+      return new BehaviorSubject({ success: true, user: authUser });
     } else {
-      const response: LoginResponse = {
-        success: false,
-        message: 'Invalid email or password.'
-      };
-      return of(response);
+      return new BehaviorSubject({ success: false, message: 'Invalid credentials' });
     }
   }
 
-  logout(): void {
-    this.storageService.removeItem('currentUser');
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+  setCurrentUser(user: AuthUser): void {
+    const userToStore = {
+      ...user,
+      loginTime: user.loginTime instanceof Date ? user.loginTime.toISOString() : user.loginTime
+    };
+    
+    this.storageService.setItem('currentUser', JSON.stringify(userToStore));
+    this.currentUserSubject.next(user);
+    console.log('🔄 User data updated across all components:', user.memberName);
+  }
+
+  // ✅ Method to update user borrow info across all components
+  setUserBorrowInfo(borrowInfo: UserBorrowInfo): void {
+    this.userBorrowInfoSubject.next(borrowInfo);
+    console.log('📊 User borrow info updated across all components:', borrowInfo);
+  }
+
+  updateUserProfile(updatedData: Partial<AuthUser>): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      const updatedUser = { 
+        ...currentUser, 
+        ...updatedData
+      };
+      this.setCurrentUser(updatedUser);
+    }
+  }
+
+  // ✅ Method to refresh user data after borrowing/returning books
+  refreshUserData(): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser?.memberId) {
+      // Trigger refresh by emitting the current user again
+      this.currentUserSubject.next(currentUser);
+    }
   }
 
   getCurrentUser(): AuthUser | null {
     return this.currentUserSubject.value;
   }
 
-  isLoggedIn(): boolean {
-    return !!this.getCurrentUser();
+  getUserBorrowInfo(): UserBorrowInfo | null {
+    return this.userBorrowInfoSubject.value;
   }
 
-  setCurrentUser(user: any): void {
-    const authUser: AuthUser = {
-      memberId: user.memberId,
-      memberName: user.memberName,
-      email: user.email,
-      token: user.token,
-      loginTime: new Date(user.loginTime)
-    };
-    
-    this.currentUserSubject.next(authUser);
-    console.log('✅ AuthService: Current user updated:', authUser);
+  isLoggedIn(): boolean {
+    return this.currentUserSubject.value !== null;
+  }
+
+  logout(): void {
+    this.storageService.removeItem('currentUser');
+    this.currentUserSubject.next(null);
+    this.userBorrowInfoSubject.next(null);
+    this.router.navigate(['/login']);
   }
 }

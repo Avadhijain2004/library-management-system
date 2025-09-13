@@ -6,10 +6,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemberService } from '../../services/member.service';
 import { CustomValidators } from '../../validators/custom-validators';
-import { 
-  MemberRegistrationRequest, 
-  MemberRegistrationResponse, 
-  CountryCode 
+import {
+  MemberRegistrationRequest,
+  MemberRegistrationResponse,
+  CountryCode,
 } from '../../models/member.model';
 
 @Component({
@@ -17,7 +17,7 @@ import {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './member-registration.component.html',
-  styleUrls: ['./member-registration.component.css']
+  styleUrls: ['./member-registration.component.css'],
 })
 export class MemberRegistrationComponent implements OnInit {
   registrationForm!: FormGroup;
@@ -26,14 +26,14 @@ export class MemberRegistrationComponent implements OnInit {
   showSuccessModal = false;
   registrationResponse: MemberRegistrationResponse | null = null;
   maxDate: string = '';
-  
+
   secretQuestions = [
     'What is your birth place?',
-    'What is your pet\'s name?',
-    'What is your mother\'s maiden name?',
+    "What is your pet's name?",
+    "What is your mother's maiden name?",
     'What was your first school name?',
     'What is your favorite book?',
-    'What is your childhood nickname?'
+    'What is your childhood nickname?',
   ];
 
   constructor(
@@ -54,24 +54,59 @@ export class MemberRegistrationComponent implements OnInit {
       memberName: ['', [Validators.required, CustomValidators.nameValidator()]],
       email: ['', [Validators.required, Validators.email]],
       countryCode: ['+91', [Validators.required]],
-      mobileNumber: ['', [Validators.required, CustomValidators.mobileNumberValidator()]],
+      mobileNumber: [
+        '',
+        [Validators.required, CustomValidators.mobileNumberValidator()],
+      ],
       address: ['', [Validators.required, CustomValidators.addressValidator()]],
       dateOfBirth: ['', [Validators.required, CustomValidators.ageValidator()]],
-      password: ['', [Validators.required, CustomValidators.passwordValidator()]],
-      confirmPassword: ['', [Validators.required, CustomValidators.confirmPasswordValidator('password')]],
+      password: [
+        '',
+        [Validators.required, CustomValidators.passwordValidator()],
+      ],
+      confirmPassword: [
+        '',
+        [
+          Validators.required,
+          CustomValidators.confirmPasswordValidator('password'),
+        ],
+      ],
       secretQuestion: ['', [Validators.required]],
-      secretAnswer: ['', [Validators.required, Validators.minLength(3)]]
+      secretAnswer: ['', [Validators.required, Validators.minLength(3)]],
     });
 
     this.registrationForm.get('password')?.valueChanges.subscribe(() => {
       this.registrationForm.get('confirmPassword')?.updateValueAndValidity();
+    });
+
+    this.registrationForm = this.fb.group({
+      memberName: ['', [Validators.required, Validators.maxLength(50)]],
+      email: ['', [Validators.required, Validators.email]],
+      countryCode: ['+91', Validators.required],
+      mobileNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[6-9]\d{9}$/), // Must start with 6–9 and 10 digits
+        ],
+      ],
+      address: ['', [Validators.required, Validators.maxLength(200)]],
+      dateOfBirth: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+      secretQuestion: ['', Validators.required],
+      secretAnswer: ['', [Validators.required, Validators.maxLength(100)]],
     });
   }
 
   private setMaxDate(): void {
     const today = new Date();
     const minAge = 14;
-    const maxDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+    const maxDate = new Date(
+      today.getFullYear() - minAge,
+      today.getMonth(),
+      today.getDate()
+    );
     this.maxDate = maxDate.toISOString().split('T')[0];
   }
 
@@ -87,7 +122,7 @@ export class MemberRegistrationComponent implements OnInit {
   onSubmit(): void {
     if (this.registrationForm.valid) {
       this.isLoading = true;
-      
+
       const registrationData: MemberRegistrationRequest = {
         memberName: this.registrationForm.value.memberName.trim(),
         email: this.registrationForm.value.email.trim().toLowerCase(),
@@ -97,7 +132,7 @@ export class MemberRegistrationComponent implements OnInit {
         dateOfBirth: this.registrationForm.value.dateOfBirth,
         password: this.registrationForm.value.password,
         secretQuestion: this.registrationForm.value.secretQuestion,
-        secretAnswer: this.registrationForm.value.secretAnswer.trim()
+        secretAnswer: this.registrationForm.value.secretAnswer.trim(),
       };
 
       // Debug log
@@ -113,7 +148,7 @@ export class MemberRegistrationComponent implements OnInit {
         error: (error) => {
           console.error('Registration failed:', error);
           this.isLoading = false;
-        }
+        },
       });
     } else {
       this.markFormGroupTouched();
@@ -123,7 +158,7 @@ export class MemberRegistrationComponent implements OnInit {
   onReset(): void {
     this.registrationForm.reset();
     this.registrationForm.patchValue({
-      countryCode: '+91'
+      countryCode: '+91',
     });
   }
 
@@ -136,7 +171,7 @@ export class MemberRegistrationComponent implements OnInit {
   }
 
   private markFormGroupTouched(): void {
-    Object.keys(this.registrationForm.controls).forEach(key => {
+    Object.keys(this.registrationForm.controls).forEach((key) => {
       const control = this.registrationForm.get(key);
       control?.markAsTouched();
     });

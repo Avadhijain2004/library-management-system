@@ -2,19 +2,24 @@
   <div class="registration-card">
     <div class="card-header">
       <h1 class="registration-title">Member Registration</h1>
-      <p class="registration-subtitle">Create your library account to get started</p>
+      <p class="registration-subtitle">
+        Create your library account to get started
+      </p>
     </div>
 
-    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
-      
+    <form
+      [formGroup]="registrationForm"
+      (ngSubmit)="onSubmit()"
+      class="registration-form"
+    >
       <!-- Member Name -->
       <div class="form-group">
         <label for="memberName" class="form-label">
           Member Name <span class="required">*</span>
         </label>
-        <input 
-          type="text" 
-          id="memberName" 
+        <input
+          type="text"
+          id="memberName"
           formControlName="memberName"
           class="form-control"
           [class.error]="getFieldError('memberName')"
@@ -22,7 +27,7 @@
           maxlength="50"
         />
         <div class="error-message" *ngIf="getFieldError('memberName')">
-          {{ getFieldError('memberName') }}
+          {{ getFieldError("memberName") }}
         </div>
       </div>
 
@@ -31,16 +36,16 @@
         <label for="email" class="form-label">
           Email Address <span class="required">*</span>
         </label>
-        <input 
-          type="email" 
-          id="email" 
+        <input
+          type="email"
+          id="email"
           formControlName="email"
           class="form-control"
           [class.error]="getFieldError('email')"
           placeholder="Enter your email address"
         />
         <div class="error-message" *ngIf="getFieldError('email')">
-          {{ getFieldError('email') }}
+          {{ getFieldError("email") }}
         </div>
       </div>
 
@@ -50,17 +55,20 @@
           Mobile Number <span class="required">*</span>
         </label>
         <div class="mobile-input-group">
-          <select 
-            formControlName="countryCode" 
+          <select
+            formControlName="countryCode"
             class="country-select"
             [class.error]="getFieldError('countryCode')"
           >
-            <option *ngFor="let country of countryCodes" [value]="country.dialCode">
+            <option
+              *ngFor="let country of countryCodes"
+              [value]="country.dialCode"
+            >
               {{ country.dialCode }} ({{ country.code }})
             </option>
           </select>
-          <input 
-            type="tel" 
+          <input
+            type="tel"
             formControlName="mobileNumber"
             class="form-control mobile-input"
             [class.error]="getFieldError('mobileNumber')"
@@ -69,17 +77,17 @@
           />
         </div>
         <div class="error-message" *ngIf="getFieldError('mobileNumber')">
-          {{ getFieldError('mobileNumber') }}
+          {{ getFieldError("mobileNumber") }}
         </div>
       </div>
 
       <!-- Address -->
-      <div class="form-group">
+      <div class="form-group textarea-group">
         <label for="address" class="form-label">
           Address <span class="required">*</span>
         </label>
-        <textarea 
-          id="address" 
+        <textarea
+          id="address"
           formControlName="address"
           class="form-control textarea"
           [class.error]="getFieldError('address')"
@@ -88,7 +96,7 @@
           maxlength="200"
         ></textarea>
         <div class="error-message" *ngIf="getFieldError('address')">
-          {{ getFieldError('address') }}
+          {{ getFieldError("address") }}
         </div>
       </div>
 
@@ -97,16 +105,16 @@
         <label for="dateOfBirth" class="form-label">
           Date of Birth <span class="required">*</span>
         </label>
-        <input 
-          type="date" 
-          id="dateOfBirth" 
+        <input
+          type="date"
+          id="dateOfBirth"
           formControlName="dateOfBirth"
           class="form-control"
           [class.error]="getFieldError('dateOfBirth')"
           [max]="maxDate"
         />
         <div class="error-message" *ngIf="getFieldError('dateOfBirth')">
-          {{ getFieldError('dateOfBirth') }}
+          {{ getFieldError("dateOfBirth") }}
         </div>
       </div>
 
@@ -115,19 +123,22 @@
         <label for="password" class="form-label">
           Password <span class="required">*</span>
         </label>
-        <input 
-          type="password" 
-          id="password" 
+        <input
+          type="password"
+          id="password"
           formControlName="password"
           class="form-control"
           [class.error]="getFieldError('password')"
           placeholder="Create a strong password"
         />
         <div class="password-requirements">
-          <small>Must contain at least 8 characters with uppercase, lowercase, number, and special character</small>
+          <small
+            >Must contain at least 8 characters with uppercase, lowercase,
+            number, and special character</small
+          >
         </div>
         <div class="error-message" *ngIf="getFieldError('password')">
-          {{ getFieldError('password') }}
+          {{ getFieldError("password") }}
         </div>
       </div>
 
@@ -136,16 +147,16 @@
         <label for="confirmPassword" class="form-label">
           Confirm Password <span class="required">*</span>
         </label>
-        <input 
-          type="password" 
-          id="confirmPassword" 
+        <input
+          type="password"
+          id="confirmPassword"
           formControlName="confirmPassword"
           class="form-control"
           [class.error]="getFieldError('confirmPassword')"
           placeholder="Confirm your password"
         />
         <div class="error-message" *ngIf="getFieldError('confirmPassword')">
-          {{ getFieldError('confirmPassword') }}
+          {{ getFieldError("confirmPassword") }}
         </div>
       </div>
 
@@ -154,8 +165,8 @@
         <label for="secretQuestion" class="form-label">
           Security Question <span class="required">*</span>
         </label>
-        <select 
-          id="secretQuestion" 
+        <select
+          id="secretQuestion"
           formControlName="secretQuestion"
           class="form-control"
           [class.error]="getFieldError('secretQuestion')"
@@ -166,7 +177,7 @@
           </option>
         </select>
         <div class="error-message" *ngIf="getFieldError('secretQuestion')">
-          {{ getFieldError('secretQuestion') }}
+          {{ getFieldError("secretQuestion") }}
         </div>
       </div>
 
@@ -175,9 +186,9 @@
         <label for="secretAnswer" class="form-label">
           Security Answer <span class="required">*</span>
         </label>
-        <input 
-          type="text" 
-          id="secretAnswer" 
+        <input
+          type="text"
+          id="secretAnswer"
           formControlName="secretAnswer"
           class="form-control"
           [class.error]="getFieldError('secretAnswer')"
@@ -185,55 +196,65 @@
           maxlength="100"
         />
         <div class="error-message" *ngIf="getFieldError('secretAnswer')">
-          {{ getFieldError('secretAnswer') }}
+          {{ getFieldError("secretAnswer") }}
         </div>
       </div>
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="btn btn-secondary"
           (click)="onReset()"
           [disabled]="isLoading"
         >
           Reset
         </button>
-        
-        <button 
-          type="submit" 
+
+        <button
+          type="submit"
           class="btn btn-primary"
           [disabled]="!isFormValid || isLoading"
         >
           <span *ngIf="isLoading" class="loading-spinner"></span>
-          {{ isLoading ? 'Registering...' : 'Register' }}
+          {{ isLoading ? "Registering..." : "Register" }}
         </button>
       </div>
 
       <!-- Login Link -->
       <div class="login-link">
-        <p>Already have an account? <a routerLink="/login" class="link">Login here</a></p>
+        <p>
+          Already have an account?
+          <a routerLink="/login" class="link">Login here</a>
+        </p>
       </div>
     </form>
   </div>
 
   <!-- Success Modal -->
-  <div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+  <div
+    class="modal-overlay"
+    *ngIf="showSuccessModal"
+    (click)="closeSuccessModal()"
+  >
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="success-icon">✓</div>
         <h2>Registration Successful!</h2>
       </div>
-      
+
       <div class="modal-body">
         <div class="success-details" *ngIf="registrationResponse">
           <p><strong>Member ID:</strong> {{ registrationResponse.memberId }}</p>
           <p><strong>Name:</strong> {{ registrationResponse.memberName }}</p>
           <p><strong>Email:</strong> {{ registrationResponse.email }}</p>
         </div>
-        <p class="success-message">Your account has been created successfully. You can now login to access the library services.</p>
+        <p class="success-message">
+          Your account has been created successfully. You can now login to
+          access the library services.
+        </p>
       </div>
-      
+
       <div class="modal-actions">
         <button class="btn btn-primary" (click)="navigateToLogin()">
           Login Now

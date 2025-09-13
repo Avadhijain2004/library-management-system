@@ -44,14 +44,6 @@
         </div>
       </div>
 
-      
-
-      
-
-      
-
-      
-
       <!-- Login Button -->
       <button
         type="submit"
@@ -61,6 +53,30 @@
         <span *ngIf="isLoading" class="loading-spinner"></span>
         {{ isLoading ? "Signing In..." : "Login" }}
       </button>
+
+      <div class="messages-section">
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <div class="alert-content">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-text">
+            <strong>Login Failed</strong>
+            <p>{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        <div class="alert-content">
+          <span class="alert-icon">✅</span>
+          <div class="alert-text">
+            <strong>Success</strong>
+            <p>{{ successMessage }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
       <!-- Action Links -->
       <div class="form-actions">
@@ -86,16 +102,12 @@
       </div>
     </form>
 
-    <!-- Demo Credentials -->
-    <div class="demo-credentials">
-      <h4>Demo Credentials:</h4>
-      <p><strong>Email:</strong> john&#64;example.com</p>
-      <p><strong>Password:</strong> Password</p>
-    </div>
-  </div>
+    
+
+   
 
   <!-- Add this section after the demo credentials -->
-<!-- <div class="debug-section" style="background: #f0f0f0; padding: 20px; margin-top: 20px; border-radius: 8px;">
+  <!-- <div class="debug-section" style="background: #f0f0f0; padding: 20px; margin-top: 20px; border-radius: 8px;">
   <h4 style="margin-bottom: 15px; color: #333;">Debug Tools:</h4>
   
   <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -124,7 +136,6 @@
     </ol>
   </div>
 </div> -->
-
 
   <!-- Forgot Password Modal -->
   <div

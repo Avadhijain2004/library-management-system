@@ -1,79 +1,36 @@
 <app-navbar></app-navbar>
 <div class="borrow-books-container">
   <!-- Page Header -->
-  <div class="page-header">
-    <h1 class="page-title">📖 Borrow Books</h1>
-    <p class="page-subtitle">
-      Search and borrow books from our digital library
-    </p>
-  </div>
+  
 
   <!-- User Information Section -->
-<div style="display: flex; justify-content: space-around;">
-      <section class="user-section">
-    <div class="users-card">
-      <h2 class="section-title">👤 User Information</h2>
-        <br><br>
-      <form [formGroup]="userForm" class="user-form">
-        <div class="form-group">
-          <label for="libraryId" class="form-label">Library ID *</label>
-          <div class="input-group">
-            <input
-              type="text"
-              id="libraryId"
-              formControlName="libraryId"
-              class="form-control"
-              placeholder="Enter Library ID (e.g., LIB001)"
-              [class.error]="
-                userForm.get('libraryId')?.invalid &&
-                userForm.get('libraryId')?.touched
-              "
-            />
-            
-            <button
-              type="button"
-              class="btn btn-primary"
-              (click)="fetchUserInfo()"
-              [disabled]="userForm.invalid || isLoadingUser"
-            >
-              <span *ngIf="isLoadingUser" class="loading-spinner"></span>
-              {{ isLoadingUser ? "Fetching..." : "Fetch Info" }}
-            </button>
-          </div>
-          <div class="field-hint">Format: LIB001, LIB002, LIB003</div>
-        </div>
-      </form>
-
-      <!-- User Info Display -->
-      <div class="user-info-display" *ngIf="userBorrowInfo">
+<div style="display: flex; justify-content: space-around; ">
+      <section class="user-section" *ngIf="userBorrowInfo && !isLoadingUser">
+    <div class="card" style="height: 400px;">
+      <h2 class="section-title">👤 Your Account</h2>
+      <br>
+      <div class="user-info-display">
         <div class="user-card">
-          <div class="user-details">
+          <div class="user-details" style="height: 200px;">
             <h3>{{ userBorrowInfo.name }}</h3>
             <p>{{ userBorrowInfo.email }}</p>
-            <p><strong>Library ID:</strong> {{ userBorrowInfo.libraryId }}</p>
+            <p><strong>Member ID:</strong> {{ userBorrowInfo.libraryId }}</p>
           </div>
-
+          
           <div class="borrow-stats">
             <div class="stat-item">
-              <span class="stat-value">{{
-                userBorrowInfo.currentBorrowedCount
-              }}</span>
+              <span class="stat-value">{{ userBorrowInfo.currentBorrowedCount }}</span>
               <span class="stat-label">Current Books</span>
             </div>
             <div class="stat-item">
-              <span class="stat-value">{{
-                MAX_BOOKS_PER_USER - userBorrowInfo.currentBorrowedCount
-              }}</span>
+              <span class="stat-value">{{ MAX_BOOKS_PER_USER - userBorrowInfo.currentBorrowedCount }}</span>
               <span class="stat-label">Available Slots</span>
             </div>
             <div class="stat-item" [class.warning]="userBorrowInfo.fines > 0">
               <span class="stat-value">₹{{ userBorrowInfo.fines }}</span>
               <span class="stat-label">Pending Fines</span>
             </div>
-            <div
-              class="stat-item"
-              [class.warning]="userBorrowInfo.overdueBooks > 0"
-            >
+            <div class="stat-item" [class.warning]="userBorrowInfo.overdueBooks > 0">
               <span class="stat-value">{{ userBorrowInfo.overdueBooks }}</span>
               <span class="stat-label">Overdue Books</span>
             </div>
@@ -82,6 +39,36 @@
       </div>
     </div>
   </section>
+
+  <!-- Loading User Info -->
+  <section class="user-loading-section" *ngIf="isLoadingUser">
+    <div class="card">
+      <div class="loading-container">
+        <div class="loading-spinner large"></div>
+        <p>Loading your account information...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Info Error -->
+  <section class="user-error-section" *ngIf="!isLoadingUser && !userBorrowInfo">
+    <div class="card">
+      <div class="error-container">
+        <div class="error-icon">❌</div>
+        <h3>Unable to Load Account Information</h3>
+        <p>Please make sure you're properly logged in.</p>
+        <div class="error-actions">
+          <button class="btn btn-primary" (click)="loadCurrentUser()">
+            🔄 Retry Loading
+          </button>
+          <button class="btn btn-secondary" (click)="router.navigate(['/profile'])">
+            👤 Check Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
   <!-- Book Search Section -->
   <section class="search-section">
@@ -186,12 +173,7 @@
           *ngFor="let book of filteredBooks; trackBy: trackByBookId"
         >
           <div class="book-image-container">
-            <img
-              [src]="book.imageUrl"
-              [alt]="book.title"
-              class="book-image"
-              (error)="onImageError($event)"
-            />
+            
             <div
               class="availability-badge"
               [class.available]="book.availableCopies > 0"
@@ -359,4 +341,6 @@
       </div>
     </div>
   </div>
+
+  
 </div>

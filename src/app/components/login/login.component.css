@@ -413,3 +413,131 @@
     flex-direction: column;
   }
 }
+
+/* ✅ Messages Section */
+.messages-section {
+  margin: 15px 0;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.alert-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.alert-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.alert-text {
+  flex: 1;
+}
+
+.alert-text strong {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.alert-text p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Error Alert */
+.alert-error {
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+  border: 2px solid #feb2b2;
+  color: #742a2a;
+}
+
+.alert-error .alert-icon {
+  color: #e53e3e;
+}
+
+/* Success Alert */
+.alert-success {
+  background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+  border: 2px solid #9ae6b4;
+  color: #276749;
+}
+
+.alert-success .alert-icon {
+  color: #38a169;
+}
+
+/* Debug Section */
+.debug-section {
+  background: #f8f9fa;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.debug-section h4 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+}
+
+.debug-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.debug-buttons .btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Make sure existing form styles don't interfere */
+.login-form {
+  margin-bottom: 0;
+}
+
+/* Demo credentials styling */
+.demo-credentials {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.demo-credentials h4 {
+  color: #1565c0;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.demo-credentials p {
+  margin: 5px 0;
+  color: #1976d2;
+  font-size: 14px;
+}

@@ -6,20 +6,22 @@
 }
 
 .navbar {
-  background: #ffffff55;
+  
+  background: linear-gradient(90deg, #4d6dff 0%, #764ba2 100%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0 24px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   height: 60px;
-  max-width: 1400px; /* Prevent navbar from shrinking */
+   /* Prevent navbar from shrinking */
+   color: white;
   
 }
 
 .nav-brand h2 {
   
-  color: #667eea;
+  color: white;
   font-size: 1.5rem;
 }
 
@@ -30,7 +32,7 @@
 
 .nav-links a {
   text-decoration: none;
-  color: #666;
+  color: #fff;
   font-weight: 500;
   padding: 8px 16px;
   border-radius: 5px;

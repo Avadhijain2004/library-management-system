@@ -4,7 +4,7 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  margin-top: 50px;
+  margin-top: 65px;
 }
 
 /* Page Header */
@@ -319,7 +319,7 @@
 
 .book-image-container {
   position: relative;
-  height: 200px;
+ 
   background: white;
   display: flex;
   align-items: center;
@@ -465,6 +465,11 @@
 }
 
 /* Confirmation Section */
+
+.confirmation-section{
+    width: 1430px;
+    margin-left: 30px;
+}
 .summary-content {
   display: grid;
   grid-template-columns: 1fr 1fr;

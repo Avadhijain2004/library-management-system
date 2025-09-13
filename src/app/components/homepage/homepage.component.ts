@@ -93,7 +93,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
   }
 
   navigateToViewBooks(): void {
-    this.router.navigate(['/books']);
+    this.router.navigate(['/view']);
   }
 
   navigateToBorrowBooks(): void {
@@ -124,7 +124,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
   }
 
   viewBookDetails(book: Book): void {
-    this.router.navigate(['/book-details', book.id]);
+    this.router.navigate(['/view', book.id]);
   }
 
   closeDropdowns(): void {

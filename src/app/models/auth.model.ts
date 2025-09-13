@@ -13,12 +13,13 @@ export interface LoginResponse {
   redirectUrl?: string;
 }
 
+// ✅ Fix the loginTime type
 export interface AuthUser {
   memberId: string;
   memberName: string;
   email: string;
   token: string;
-  loginTime: Date;
+  loginTime: Date | string; // ✅ Allow both Date and string for flexibility
 }
 
 export interface PasswordResetRequest {
@@ -30,4 +31,10 @@ export interface AccountLockInfo {
   attempts: number;
   lockedUntil?: Date;
   isLocked: boolean;
+}
+
+// ✅ Add interfaces for better type safety
+export interface LoginCredentials {
+  email: string;
+  password: string;
 }

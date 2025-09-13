@@ -25,8 +25,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // ✅ Subscribe to real-time user updates
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      console.log('🔄 Navbar updated with new user data:', user?.memberName); // Debug log
     });
   }
 
@@ -34,6 +36,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userSubscription.unsubscribe();
   }
 
+  // Rest of your methods remain the same...
   onSearchClick(): void {
     this.router.navigate(['/search']);
   }

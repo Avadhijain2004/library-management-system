@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = ''; // ✅ Add success message
   showForgotPassword = false;
   forgotPasswordEmail = '';
   forgotPasswordMessage = '';
@@ -45,11 +46,123 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // DEBUG METHODS
+  // ✅ Updated onSubmit method
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.isLoading = true;
+      this.clearMessages();
+      
+      // Add a small delay to show loading state
+      setTimeout(() => {
+        this.processLogin();
+      }, 500);
+    } else {
+      this.markFormGroupTouched();
+      this.showError('Please fill in all required fields correctly.');
+    }
+  }
+
+  // ✅ Main login processing method
+  private processLogin(): void {
+    const credentials: LoginRequest = {
+      email: this.loginForm.value.email.trim().toLowerCase(),
+      password: this.loginForm.value.password
+    };
+
+    console.log('🔐 Processing login for:', credentials.email);
+
+    try {
+      // Check if user exists
+      const user = this.memberService.findUserByEmail(credentials.email);
+      
+      if (!user) {
+        this.isLoading = false;
+        this.showError('No account found with this email address. Please register first.');
+        return;
+      }
+
+      console.log('👤 Found user:', user);
+
+      // Validate credentials
+      const isValid = this.memberService.validateCredentials(credentials.email, credentials.password);
+      
+      if (!isValid) {
+        this.isLoading = false;
+        this.showError('Invalid password. Please check your credentials and try again.');
+        return;
+      }
+
+      // Successful login
+      this.proceedWithLogin(user);
+
+    } catch (error) {
+      this.isLoading = false;
+      this.showError('An error occurred during login. Please try again.');
+      console.error('Login error:', error);
+    }
+  }
+
+  // ✅ Updated proceedWithLogin method
+  private proceedWithLogin(user: any): void {
+    try {
+      const authUser = {
+        memberId: user.id,
+        memberName: user.memberName,
+        email: user.email,
+        token: 'demo-token-' + Date.now(),
+        loginTime: new Date()
+      };
+
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(authUser));
+      console.log('✅ User data saved to localStorage:', authUser);
+      
+      // Update AuthService currentUser subject
+      this.authService.setCurrentUser(authUser);
+      
+      // Show success message briefly
+      this.showSuccess(`Welcome back, ${user.memberName}! Redirecting to dashboard...`);
+      
+      // Navigate after short delay
+      setTimeout(() => {
+        this.isLoading = false;
+        console.log('✅ Navigating to homepage...');
+        this.router.navigate(['/homepage']);
+      }, 1500);
+
+    } catch (error) {
+      this.isLoading = false;
+      this.showError('Failed to complete login process. Please try again.');
+      console.error('Login completion error:', error);
+    }
+  }
+
+  // ✅ Helper methods for message handling
+  private showError(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    
+    // Auto-clear error message after 5 seconds
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
+  }
+
+  private showSuccess(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+  }
+
+  private clearMessages(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  // ✅ Updated debug methods
   clearAllData(): void {
     localStorage.clear();
     console.log('All localStorage data cleared');
-    this.errorMessage = 'All data cleared. Please register again.';
+    this.showError('All data cleared. Please register again.');
   }
 
   showAllUsers(): void {
@@ -57,9 +170,9 @@ export class LoginComponent implements OnInit {
     console.log('All registered users:', users);
     
     if (users.length === 0) {
-      this.errorMessage = 'No users registered. Please register first.';
+      this.showError('No users registered. Please register first.');
     } else {
-      this.errorMessage = `Found ${users.length} registered user(s). Check console for details.`;
+      this.showSuccess(`Found ${users.length} registered user(s). Check console for details.`);
     }
   }
 
@@ -67,55 +180,31 @@ export class LoginComponent implements OnInit {
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     
+    if (!email || !password) {
+      this.showError('Please enter both email and password to test.');
+      return;
+    }
+    
     console.log('Testing login for:', email);
     
-    const user = this.memberService.findUserByEmail(email);
+    const user = this.memberService.findUserByEmail(email.trim().toLowerCase());
     console.log('Found user:', user);
     
     if (user) {
-      const isValid = this.memberService.validateCredentials(email, password);
+      const isValid = this.memberService.validateCredentials(email.trim().toLowerCase(), password);
       console.log('Credentials valid:', isValid);
       
       if (isValid) {
-        this.errorMessage = 'Credentials are valid! Proceeding with login...';
-        this.proceedWithLogin();
+        this.showSuccess('✅ Credentials are valid! You can now click Login button.');
       } else {
-        this.errorMessage = 'Password does not match. Check console for details.';
+        this.showError('❌ Password does not match. Please check your password.');
       }
     } else {
-      this.errorMessage = 'User not found. Please register first.';
+      this.showError('❌ User not found. Please check email or register first.');
     }
   }
 
-  private proceedWithLogin(): void {
-  const credentials: LoginRequest = {
-    email: this.loginForm.value.email.trim().toLowerCase(),
-    password: this.loginForm.value.password
-  };
-
-  const user = this.memberService.findUserByEmail(credentials.email);
-  if (user) {
-    const authUser = {
-      memberId: user.id,
-      memberName: user.memberName,
-      email: user.email,
-      token: 'demo-token-' + Date.now(),
-      loginTime: new Date()
-    };
-
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(authUser));
-    console.log('✅ User data saved to localStorage:', authUser);
-    
-    // Update AuthService currentUser subject
-    this.authService.setCurrentUser(authUser);
-    
-    console.log('✅ Navigating to homepage...');
-    this.router.navigate(['/homepage']);
-  }
-}
-
-
+  // Rest of your existing methods remain the same...
   getFieldError(fieldName: string): string {
     const field = this.loginForm.get(fieldName);
     if (field && field.errors && field.touched) {
@@ -135,14 +224,6 @@ export class LoginComponent implements OnInit {
       password: 'Password'
     };
     return displayNames[fieldName] || fieldName;
-  }
-
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.testLogin(); // Use test login for now
-    } else {
-      this.markFormGroupTouched();
-    }
   }
 
   onForgotPassword(): void {

@@ -1,0 +1,424 @@
+<app-navbar></app-navbar>
+<div style="display: flex; justify-content: center;background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="view-books-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">📚 Browse Books</h1>
+    <p class="page-subtitle">
+      Discover your next great read from our extensive collection
+    </p>
+  </div>
+
+  <!-- Statistics Cards (if search results exist) -->
+  <section class="statistics-section" *ngIf="searchResults && hasSearched">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <span class="stat-number">{{ getTotalBooks() }}</span>
+          <span class="stat-label"> Total Books</span>
+        </div>
+      </div>
+
+      <div class="stat-card available">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <span class="stat-number">{{ getAvailableBooks() }}</span>
+          <span class="stat-label"> Available</span>
+        </div>
+      </div>
+
+      <div class="stat-card unavailable" *ngIf="getUnavailableBooks() > 0">
+        <div class="stat-icon">❌</div>
+        <div class="stat-info">
+          <span class="stat-number">{{ getUnavailableBooks() }}</span>
+          <span class="stat-label"> Unavailable</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advanced Search Form -->
+  <section class="search-section">
+    <div class="card">
+      <h2 class="section-title">🔍 Search Books</h2>
+
+      <form [formGroup]="searchForm" class="search-form">
+        <div class="search-row-main">
+          <!-- Search Query -->
+          <div class="search-input-group">
+            <input
+              type="text"
+              formControlName="query"
+              class="search-input"
+              placeholder="Search for books, authors, categories, or book IDs..."
+            />
+            <button type="button" class="search-button" (click)="onSearch()">
+              🔍 Search
+            </button>
+          </div>
+        </div>
+
+        <div class="search-filters">
+          <!-- Search Type -->
+          <div class="filter-group">
+            <label class="filter-label">Search In:</label>
+            <select formControlName="searchType" class="filter-select">
+              <option *ngFor="let type of searchTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <label class="filter-label">Category:</label>
+            <select formControlName="category" class="filter-select">
+              <option value="">All Categories</option>
+              <option
+                *ngFor="let category of categories"
+                [value]="category.name"
+              >
+                {{ category.name }} ({{ category.count }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="filter-group">
+            <label class="filter-label">Availability:</label>
+            <select formControlName="availabilityFilter" class="filter-select">
+              <option value="all">All Books</option>
+              <option value="available">Available Only</option>
+              <option value="unavailable">Unavailable Only</option>
+            </select>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="filter-group">
+            <label class="filter-label">Sort By:</label>
+            <select formControlName="sortBy" class="filter-select">
+              <option *ngFor="let sort of sortOptions" [value]="sort.value">
+                {{ sort.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Sort Order -->
+          <div class="filter-group">
+            <label class="filter-label">Order:</label>
+            <select formControlName="sortOrder" class="filter-select">
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <div class="filter-group">
+            <button type="button" class="btn-clear" (click)="clearSearch()">
+              🗑️ Clear
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div class="loading-section" *ngIf="isSearching">
+    <div class="loading-container">
+      <div class="loading-spinner large"></div>
+      <p>Searching for books...</p>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <section class="results-section" *ngIf="searchResults && !isSearching">
+    <div class="card">
+      <div class="results-header">
+        <h2 class="section-title">📋 Search Results</h2>
+        <div class="results-meta" *ngIf="hasSearched">
+          <span class="results-count">
+            {{ searchResults.totalCount }} book(s) found
+          </span>
+          <span
+            class="search-term"
+            *ngIf="searchResults.searchTerm !== 'All Books'"
+          >
+            for "{{ searchResults.searchTerm }}"
+          </span>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div
+        class="no-results"
+        *ngIf="searchResults.totalCount === 0 && hasSearched"
+      >
+        <div class="no-results-icon">📭</div>
+        <h3>No Books Found</h3>
+        <p>Your search didn't match any books in our collection.</p>
+        <div class="no-results-message">
+          <p>
+            <strong
+              >This book is currently unavailable. Select a different category
+              or book.</strong
+            >
+          </p>
+        </div>
+        <div class="no-results-suggestions">
+          <h4>Try:</h4>
+          <ul>
+            <li>Checking your spelling</li>
+            <li>Using different keywords</li>
+            <li>Searching in all fields</li>
+            <li>Browsing by category</li>
+          </ul>
+        </div>
+        <button class="btn btn-primary" (click)="clearSearch()">
+          🔄 Show All Books
+        </button>
+      </div>
+
+      <!-- Books Grid -->
+      <div class="books-grid" *ngIf="searchResults.totalCount > 0">
+        <div
+          class="book-card"
+          *ngFor="let book of searchResults.books; trackBy: trackByBookId"
+          [class.unavailable]="!book.isAvailable || book.availableCopies === 0"
+        >
+          <div class="book-image-container" (click)="onBookClick(book)">
+            <img
+              [src]="book.imageUrl"
+              [alt]="book.title"
+              class="book-image"
+              (error)="onImageError($event)"
+            />
+            <div class="book-overlay">
+              <span class="view-details">👁️ View Details</span>
+            </div>
+          </div>
+
+          <div class="book-info">
+            <div class="book-header">
+              <h3 class="book-title" (click)="onBookClick(book)">
+                {{ book.title }}
+              </h3>
+              <span
+                class="availability-badge"
+                [class]="getAvailabilityClass(book)"
+              >
+                {{ getAvailabilityText(book) }}
+              </span>
+            </div>
+
+            <p class="book-author">👤 {{ book.author }}</p>
+            <p class="book-category">📂 {{ book.category }}</p>
+            <p class="book-isbn">📋 ISBN: {{ book.isbn }}</p>
+
+            <div class="book-rating" *ngIf="book.rating">
+              <div class="stars">
+                <span
+                  *ngFor="let star of getStarArray(book.rating)"
+                  class="star filled"
+                  >⭐</span
+                >
+                <span *ngIf="hasHalfStar(book.rating)" class="star half"
+                  >⭐</span
+                >
+                <span
+                  *ngFor="let star of getEmptyStarArray(book.rating)"
+                  class="star empty"
+                  >☆</span
+                >
+              </div>
+              <span class="rating-text">{{ book.rating }}/5</span>
+            </div>
+
+            <div class="book-availability">
+              <div class="availability-info">
+                <span class="copies-available">
+                  📚 {{ book.availableCopies }}/{{ book.totalCopies }} available
+                </span>
+                <span class="publish-year" *ngIf="book.publishYear">
+                  📅 {{ book.publishYear }}
+                </span>
+              </div>
+            </div>
+
+            <div class="book-actions">
+              <button
+                class="btn btn-primary btn-sm"
+                (click)="onBorrowBook(book)"
+                [disabled]="!book.isAvailable || book.availableCopies === 0"
+              >
+                <span *ngIf="book.isAvailable && book.availableCopies > 0"
+                  >📖 Borrow</span
+                >
+                <span *ngIf="!book.isAvailable || book.availableCopies === 0"
+                  >❌ Unavailable</span
+                >
+              </button>
+
+              <button
+                class="btn btn-outline btn-sm"
+                (click)="onCheckAvailability(book)"
+              >
+                ℹ️ Check Status
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Book Details Modal -->
+  <div class="modal-overlay" *ngIf="showBookModal && selectedBook">
+    <div class="modal-content book-modal">
+      <div class="modal-header">
+        <h3>📚 Book Details</h3>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="book-details-container">
+          <div class="book-details-image">
+            <img
+              [src]="selectedBook.imageUrl"
+              [alt]="selectedBook.title"
+              class="book-detail-image"
+              (error)="onImageError($event)"
+            />
+            <div
+              class="book-status-badge"
+              [class]="getAvailabilityClass(selectedBook)"
+            >
+              {{ getAvailabilityText(selectedBook) }}
+            </div>
+          </div>
+
+          <div class="book-details-info">
+            <h4 class="book-detail-title">{{ selectedBook.title }}</h4>
+            <p class="book-detail-author">by {{ selectedBook.author }}</p>
+
+            <div class="book-meta">
+              <div class="meta-row">
+                <span class="meta-label">Category:</span>
+                <span class="meta-value">{{ selectedBook.category }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">ISBN:</span>
+                <span class="meta-value">{{ selectedBook.isbn }}</span>
+              </div>
+              <div class="meta-row" *ngIf="selectedBook.publishYear">
+                <span class="meta-label">Published:</span>
+                <span class="meta-value">{{ selectedBook.publishYear }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Availability:</span>
+                <span class="meta-value"
+                  >{{ selectedBook.availableCopies }}/{{
+                    selectedBook.totalCopies
+                  }}
+                  copies</span
+                >
+              </div>
+            </div>
+
+            <div class="book-rating-detail" *ngIf="selectedBook.rating">
+              <div class="stars">
+                <span
+                  *ngFor="let star of getStarArray(selectedBook.rating)"
+                  class="star filled"
+                  >⭐</span
+                >
+                <span *ngIf="hasHalfStar(selectedBook.rating)" class="star half"
+                  >⭐</span
+                >
+                <span
+                  *ngFor="let star of getEmptyStarArray(selectedBook.rating)"
+                  class="star empty"
+                  >☆</span
+                >
+              </div>
+              <span class="rating-detail">{{ selectedBook.rating }}/5</span>
+            </div>
+
+            <div class="book-description" *ngIf="selectedBook.description">
+              <h5>Description:</h5>
+              <p>{{ selectedBook.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+        <button
+          class="btn btn-primary"
+          (click)="onBorrowBook(selectedBook); closeModal()"
+          [disabled]="
+            !selectedBook.isAvailable || selectedBook.availableCopies === 0
+          "
+        >
+          <span
+            *ngIf="selectedBook.isAvailable && selectedBook.availableCopies > 0"
+            >📖 Borrow This Book</span
+          >
+          <span
+            *ngIf="
+              !selectedBook.isAvailable || selectedBook.availableCopies === 0
+            "
+            >❌ Unavailable</span
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Availability Status Modal -->
+  <div class="modal-overlay" *ngIf="showAvailabilityModal && availabilityInfo">
+    <div class="modal-content availability-modal">
+      <div class="modal-header">
+        <h3>📋 Availability Status</h3>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="availability-status-container">
+          <div
+            class="status-icon"
+            [class]="selectedBook ? getAvailabilityClass(selectedBook) : ''"
+          >
+            <span *ngIf="availabilityInfo.status === 'Available'">✅</span>
+            <span *ngIf="availabilityInfo.status === 'Limited'">⚠️</span>
+            <span *ngIf="availabilityInfo.status === 'Unavailable'">❌</span>
+          </div>
+
+          <div class="status-info">
+            <h4 class="status-title">{{ availabilityInfo.status }}</h4>
+            <p class="status-message">{{ availabilityInfo.message }}</p>
+
+            <div
+              class="additional-info"
+              *ngIf="availabilityInfo.nextAvailableDate"
+            >
+              <p>
+                <strong>Expected Return:</strong>
+                {{ availabilityInfo.nextAvailableDate | date : "fullDate" }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  
+</div>
+</div>
